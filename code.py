@@ -8,7 +8,7 @@ import terminalio
 from adafruit_display_text import label
 from scd30 import SCD30
 import audioio
-import adafruit_bme280
+import adafruit_bme280 # Comment out if not using pressure calibration
 
 def plot_data(data):
     # Set up plotting window
@@ -79,7 +79,7 @@ pybadger.auto_dim_display(delay=10, movement_threshold=20)
 
 i2c = board.I2C()
 scd30 = SCD30(i2c, 0x61)
-bme280 = adafruit_bme280.Adafruit_BME280_I2C(i2c)
+bme280 = adafruit_bme280.Adafruit_BME280_I2C(i2c) # Comment out if not using pressure sensor
 
 state = 3
 state_changed = True
@@ -132,6 +132,10 @@ while True:
 
         try:
             # Starts a continuous measurement with the (integer) ambient pressure in milibar as an argument for correction.
+            # Swap which line below is commented to toggle pressure calibration on/off.
+            # The pressure calibration is persistent in the SCD30, so if you run once with pressure cal, 
+            # you need to command without it at least once to go back to normal. This DOESN't need to be run
+            # every cycle if not-compenating.
             scd30.start_continous_measurement(round(bme280.pressure))
             #scd30.start_continous_measurement()
             while scd30.get_status_ready() != 1:
