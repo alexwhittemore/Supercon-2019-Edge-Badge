@@ -11,6 +11,8 @@ import audioio
 from adafruit_bme280 import basic as adafruit_bme280
 
 def plot_data(data):
+    global all_time_high
+
     # Set up plotting window
     bottom_margin = 15 #pixels on the bottom edge
     top_margin = 15 #pixels on the top edge
@@ -66,11 +68,18 @@ def plot_data(data):
     max_val_text.x = 0
     max_val_text.y = height//2
 
+    all_time_high = max(all_time_high, max(data))
+    all_time_high_text = label.Label(font, text="H: {} ppm".format(round(all_time_high)), color=0xFF0000)
+    (_, _, width, height) = all_time_high_text.bounding_box
+    all_time_high_text.x = display.width - width
+    all_time_high_text.y = display.height - (height // 2)
+
     # Show it
     #display.show(text_area)
     group.append(current_val_text)
     group.append(min_val_text)
     group.append(max_val_text)
+    group.append(all_time_high_text)
 
 display = pybadger.display
 
@@ -80,13 +89,24 @@ i2c = board.I2C()
 scd30 = SCD30(i2c, 0x61)
 bme280 = adafruit_bme280.Adafruit_BME280_I2C(i2c)
 
+print("SCD30 calibration configuration:")
+print("  automatic recalibration: {}".format(scd30.get_automatic_recalibration()))
+print("  forced recalibration: {} ppm".format(scd30.get_forced_recalibration()))
+print("  temperature offset: {} C".format(scd30.get_temperature_offset()))
+print("  altitude compensation: {} m".format(scd30.get_altitude_comp()))
+
 state = 3
 state_changed = True
+left_pressed = False
 
 # Accumulate data from sensor
 data = []
+all_time_high = 0
 
 while True:
+    if not pybadger.button.left:
+        left_pressed = False
+
     if pybadger.button.start:
         state = 0
         state_changed = True
@@ -99,6 +119,13 @@ while True:
     elif pybadger.button.down:
         state = 3
         state_changed = True
+    elif pybadger.button.left:
+        if not left_pressed:
+            scd30.set_forced_recalibration(430)
+            pybadger.show_badge(name_string="FRC set to 430 ppm", hello_scale=2, my_name_is_scale=2, name_scale=2)
+            time.sleep(2)
+            left_pressed = True
+            continue
 
     if (state==0 and state_changed):
         # Wait for sensor data to be ready to read (by default every 2 seconds)

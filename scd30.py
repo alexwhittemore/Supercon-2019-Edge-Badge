@@ -107,7 +107,7 @@ class SCD30:
     def get_measurement_interval(self):
         bint = self.__read_bytes(self.SET_MEASURE_INTERVAL, 3)
         self.__check_crc(bint)
-        return struct.unpack('>H', bint)[0]
+        return struct.unpack('>H', bint[0:2])[0]
 
     def set_measurement_interval(self, interval):
         bint = struct.pack('>H', interval)
@@ -122,7 +122,7 @@ class SCD30:
     def get_automatic_recalibration(self):
         bint = self.__read_bytes(self.SET_ASC, 3)
         self.__check_crc(bint)
-        return struct.unpack('>H', bint)[0] == 1
+        return struct.unpack('>H', bint[0:2])[0] == 1
 
     def set_automatic_recalibration(self, enable):
         bint = struct.pack('>H', 1 if enable else 0)
@@ -137,7 +137,7 @@ class SCD30:
     def get_forced_recalibration(self):
         bint = self.__read_bytes(self.SET_FRC, 3)
         self.__check_crc(bint)
-        return struct.unpack('>H', bint)[0]
+        return struct.unpack('>H', bint[0:2])[0]
 
     def set_forced_recalibration(self, co2ppm):
         bint = struct.pack('>H', co2ppm)
@@ -152,7 +152,7 @@ class SCD30:
     def get_temperature_offset(self):
         bint = self.__read_bytes(self.SET_TEMP_OFFSET, 3)
         self.__check_crc(bint)
-        return struct.unpack('>H', bint)[0] / 100.0
+        return struct.unpack('>H', bint[0:2])[0] / 100.0
 
     def set_temperature_offset(self, offset):
         bint = struct.pack('>H', int(offset * 100))
@@ -167,7 +167,7 @@ class SCD30:
     def get_altitude_comp(self):
         bint = self.__read_bytes(self.SET_ALT_COMP, 3)
         self.__check_crc(bint)
-        return struct.unpack('>H', bint)[0]
+        return struct.unpack('>H', bint[0:2])[0]
 
     def set_altitude_comp(self, altitude):
         bint = struct.pack('>H', altitude)
