@@ -132,7 +132,7 @@ while True:
         try:
             # Starts a continuous measurement with the (integer) ambient pressure in milibar as an argument for correction.
             # Swap which line below is commented to toggle pressure calibration on/off.
-            # The pressure calibration is persistent in the SCD30, so if you run once with pressure cal, 
+            # The pressure calibration is persistent in the SCD30, so if you run once with pressure cal,
             # you need to command without it at least once to go back to normal. This DOESN't need to be run
             # every cycle if not-compensating.
             scd30.start_continous_measurement(round(bme280.pressure))
